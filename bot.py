@@ -133,15 +133,18 @@ def main():
                                 ton_farms.claim_game(access_token, payload)
                 
                 if selector_game == '2':
-                    ener = energy%3
-                    if ener > 0:
-                        for i in range(ener):
+                    if energy >= 3:
+                        while True:
                             data_spin = ton_farms.spin(access_token)
                             if data_spin is not None:
                                 title = data_spin.get('title')
+                                total_energy = data_spin.get('total_energy')
+                                energy = total_energy
                                 keys = title.lower()
                                 reward = data_spin.get(f'{keys}')
                                 print_(f"Spin Done, Reward : {reward} {title}")
+                                if energy < 3:
+                                    break
 
 
   
