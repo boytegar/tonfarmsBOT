@@ -14,11 +14,11 @@ class TonFarms:
             'accept': 'application/json, text/plain, */*',
             'accept-encoding' : 'gzip, deflate, br, zstd',
             'accept-language': 'en-US,en;q=0.9',
-            'content-type': 'application/json',
+            # 'content-type': 'application/json',
             'origin': 'https://game.tonfarms.com',
             'referer': 'https://game.tonfarms.com/',
             'host':'api.tonfarms.com',
-            'sec-ch-ua': 'Microsoft Edge";v="129", "Not=A?Brand";v="8", "Chromium";v="129", "Microsoft Edge WebView2";v="129"',
+            'sec-ch-ua': '"Microsoft Edge";v="131", "Chromium";v="131", "Not_A Brand";v="24", "Microsoft Edge WebView2";v="131"',
             'sec-ch-ua-mobile': '?0',
             'sec-ch-ua-platform': '"Windows"',
             'sec-fetch-dest': 'empty',
@@ -143,6 +143,8 @@ class TonFarms:
                 for item in dats:
                     id = item.get('id', 0)
                     name = item.get('name', '')
+                    if name in ['Daily shopping']:
+                        continue
                     reward_amount = item.get('reward_amount')
                     is_completed = item.get('is_completed')
                     is_claimed = item.get('is_claimed')
@@ -186,6 +188,20 @@ class TonFarms:
             success = data.get('success', False)
             if success:
                 self.print_("Join Clan Done")
+    
+    def spin(self, token):
+        url = 'https://api.tonfarms.com/api/v1/lucky/spin'
+        headers= {
+            **self.headers,
+            'authorization': f"Bearer {token}"
+        }
+        res = self.make_request('get', url, headers=headers)
+        if res is not None:
+            data = res.json()
+            success = data.get('success', False)
+            dats = data.get('data')
+            if success:
+                return dats
 
 
 

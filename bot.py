@@ -8,18 +8,7 @@ from urllib.parse import parse_qs, unquote
 from datetime import datetime, timedelta
 from ton_farms import TonFarms
 
-headers = {
-    'origin': 'https://game.tonfarms.com',
-    'referer': 'https://game.tonfarms.com/',
-    'host':'api.tonfarms.com',
-    'sec-ch-ua': 'Microsoft Edge";v="129", "Not=A?Brand";v="8", "Chromium";v="129", "Microsoft Edge WebView2";v="129"',
-    'sec-ch-ua-mobile': '?0',
-    'sec-ch-ua-platform': '"Windows"',
-    'sec-fetch-dest': 'empty',
-    'sec-fetch-mode': 'cors',
-    'sec-fetch-site': 'cross-site',
-    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
-    }
+
 
 def print_(word):
     now = datetime.now().isoformat(" ").split(".")[0]
@@ -83,6 +72,7 @@ def print_delay(delay):
 
 
 def main():
+    selector_game = input("choose : 1(playgame) 2(spin) n(skip all) 1/2/n : ")
     while True:
         delete_all()
         start_time = time.time()
@@ -128,19 +118,32 @@ def main():
 
                 print_('Start Task')
                 ton_farms.get_tasks(access_token)
+                if selector_game == '1':
+                    if energy > 1:
+                        print_('Start Game')
+                        for i in range(energy-1):
+                            print_(f"Playing Game {i+1}")
+                            data_start = ton_farms.start_game(access_token)
+                            time.sleep(30)
+                            if data_start is not None:
+                                id_game = data_start.get('id', 0)
+                                ton_game = data_start.get('ton', 0)
+                                amount = random.randint(120, 150)
+                                payload = {"amount":amount, "id":id_game, "ton":ton_game}
+                                ton_farms.claim_game(access_token, payload)
+                
+                if selector_game == '2':
+                    ener = energy%3
+                    if ener > 0:
+                        for i in range(ener):
+                            data_spin = ton_farms.spin(access_token)
+                            if data_spin is not None:
+                                title = data_spin.get('title')
+                                keys = title.lower()
+                                reward = data_spin.get(f'{keys}')
+                                print_(f"Spin Done, Reward : {reward} {title}")
 
-                if energy > 1:
-                    print_('Start Game')
-                    for i in range(energy-1):
-                        print_(f"Playing Game {i+1}")
-                        data_start = ton_farms.start_game(access_token)
-                        time.sleep(30)
-                        if data_start is not None:
-                            id_game = data_start.get('id', 0)
-                            ton_game = data_start.get('ton', 0)
-                            amount = random.randint(120, 150)
-                            payload = {"amount":amount, "id":id_game, "ton":ton_game}
-                            ton_farms.claim_game(access_token, payload)
+
   
         end_time = time.time()
         total = delay - (end_time-start_time)
